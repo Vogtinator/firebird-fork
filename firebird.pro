@@ -196,7 +196,8 @@ SOURCES += $$ASMCODE_IMPL \
     kitmodel.cpp \
     fbaboutdialog.cpp \
     dockwidget.cpp \
-    consolelineedit.cpp
+    consolelineedit.cpp \
+    core/cx2.cpp
 
 FORMS += \
     mainwindow.ui \
@@ -243,7 +244,8 @@ HEADERS += \
     kitmodel.h \
     fbaboutdialog.h \
     dockwidget.h \
-    consolelineedit.h
+    consolelineedit.h \
+    core/cx2.h
 
 # For localization
 lupdate_only {
