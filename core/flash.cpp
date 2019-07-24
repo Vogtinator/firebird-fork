@@ -1005,27 +1005,39 @@ struct flash_param_page_struct {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 static const flash_param_page_struct param_page_micron = {
-    .signature = {'O', 'N', 'F', 'I'},
-    .optional_commands = 6,
-    .manufacturer = {'M','I','C','R','O','N',' ',' ',' ',' ',' ',' '},
-    .model = {'M','T','2','9','F','1','G','0','1','A','A','A','D','D','H','4',' ',' ',' ',' '},
-    .manuf_id = 0x2C,
-    .page_data_size = 2048,
-    .page_spare_size = 64,
-    .partial_page_data_size = 512,
-    .partial_page_spare_size = 16,
-    .pages_per_block = 64,
-    .blocks_per_unit = 1024,
-    .count_logical_units = 1,
-    .bits_per_cell = 1,
-    .bad_blocks_per_unit_max = 20,
-    .block_endurance = 0x501,
-    .programs_per_page = 4,
-    .pin_capacitance = 10,
-    .time_max_prog = 900,
-    .time_max_erase = 10000,
-    .time_max_read = 100,
-    .rev_vendor = 1
+    'O', 'N', 'F', 'I', // .signature
+    0, // revision
+    0, // features
+    6, // optional_commands
+    ' ', ' ',  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',// reserved0
+    'M', 'I', 'C', 'R', 'O', 'N', ' ', ' ', ' ', ' ', ' ', ' ', // manufacturer
+    'M','T','2','9','F','1','G','0','1','A','A','A','D','D','H','4',' ',' ',' ',' ', // .model
+    0x2C, // manuf_id
+    0, // date_code
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // reserved1
+    2048, // page_data_size
+    64, // .page_spare_size
+    512, // .partial_page_data_size
+    16, // .partial_page_spare_size
+    64, // .pages_per_block
+    1024, // .blocks_per_unit
+    1, // .count_logical_units
+    0, // address_cycles
+    1, // .bits_per_cell
+    20, // .bad_blocks_per_unit_max
+    0x501, // .block_endurance
+    0, // guaranteed_valid_blocks
+    4, // .programs_per_page
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // toolazytotype
+    10, // .pin_capacitance
+    0, 0, // timing
+    900, // .time_max_prog
+    10000, // .time_max_erase
+    100, // .time_max_read
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // toolazy
+    1, // .rev_vendor
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   //vendor_data
+    0 // crc
 };
 #pragma GCC diagnostic pop
 
