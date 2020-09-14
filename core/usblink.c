@@ -467,7 +467,8 @@ void dirlist_next(struct packet *in)
             return;
         default:
             //Error
-            current_dirlist_callback(NULL, true, current_user_data);
+            if(current_dirlist_callback)
+                current_dirlist_callback(NULL, true, current_user_data);
             current_dirlist_callback = NULL;
             gui_debug_printf("usblink error 0x%x\n", in->data[1]);
             return;
