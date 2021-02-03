@@ -51,6 +51,10 @@ std::queue<usb_packet> send_queue;
 
 static bool usb_cx2_real_packet_to_calc(uint8_t ep, const uint8_t *packet, size_t size)
 {
+    auto packet_size = usb_cx2.epout[(ep - 1) & 7] & 0x7ff;
+    if(packet_size <= 0)
+        return false;
+
     uint8_t fifo = (usb_cx2.epmap[ep > 4] >> (8 * ((ep - 1) & 0b11) + 4)) & 0b11;
 
     // +1 to adjust for the hack below
@@ -69,7 +73,7 @@ static bool usb_cx2_real_packet_to_calc(uint8_t ep, const uint8_t *packet, size_
 
     usb_cx2.fifo[fifo].size += size;
     usb_cx2.gisr[1] |= 1 << (fifo * 2); // FIFO OUT IRQ
-    auto packet_size = usb_cx2.epout[(ep - 1) & 7] & 0x7ff;
+
     if(size % packet_size) // Last pkt is short?
         usb_cx2.gisr[1] |= 1 << ((fifo * 2) + 1); // FIFO SPK IRQ
     else // ZLP needed
@@ -96,15 +100,86 @@ bool usb_cx2_packet_to_calc(uint8_t ep, const uint8_t *packet, size_t size)
         return usb_cx2_real_packet_to_calc(ep, packet, size);
 }
 
+static int tapfd = -1;
+static bool linuxready = false;
+
+#include <sys/ioctl.h>
+#include <linux/if_tun.h>
+#include <linux/if.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 static void usb_cx2_packet_from_calc(uint8_t ep, uint8_t *packet, size_t size)
 {
     if(ep != 1)
         error("Got packet on unknown EP");
 
+    if(arm.reg[15] > 0x80000000)
+    {
+        if(size > 6 && packet[1] < 0x80)
+            write(tapfd, packet + 2, size - 2 - 4);
+        return;
+    }
+
     if(!usblink_cx2_handle_packet(packet, size))
         warn("Packet not handled");
 }
 
+// From the linux kernel documentation
+int tun_alloc(const char *dev, int flags)
+{
+  int fd = open("/dev/net/tun", O_RDWR);
+  if(fd < 0) {
+    perror("Opening /dev/net/tun");
+    return fd;
+  }
+
+  struct ifreq ifr;
+  memset(&ifr, 0, sizeof(ifr));
+
+  ifr.ifr_flags = flags;
+  strncpy(ifr.ifr_name, dev, IFNAMSIZ);
+
+  int err = ioctl(fd, TUNSETIFF, (void *)&ifr);
+  if(err < 0) {
+    perror("ioctl(TUNSETIFF)");
+    close(fd);
+    return err;
+  }
+
+  return fd;
+}
+
+void usb_cx2_work()
+{
+    uint8_t buf[1024];
+    if(arm.reg[15] >> 28 == 0xC && linuxready)
+    {
+        int r;
+        while((r = read(tapfd, &buf[2], sizeof(buf) - 2 - 4 - 2)) > 0)
+        {
+            uint16_t size = r + 4;
+            buf[0] = size & 0xFF;
+            buf[1] = size >> 8;
+            r += 2;
+            buf[r++] = 0xde;
+            buf[r++] = 0xad;
+            buf[r++] = 0xbe;
+            buf[r++] = 0xef;
+
+            // If end is at packet border, append a noop
+            if((r & 0x3F) == 0)
+            {
+                buf[r++] = 0;
+                buf[r++] = 0;
+            }
+
+            usb_cx2_packet_to_calc(2, buf, r);
+        }
+    }
+}
+
+extern "C" {
 void usb_cx2_reset()
 {
     usb_cx2 = {};
@@ -122,6 +197,15 @@ void usb_cx2_reset()
     usb_cx2.gisr[2] |= 1;
 
     usb_cx2_int_check();
+
+    if(tapfd < 0)
+    {
+        tapfd = tun_alloc("tap0", IFF_TAP | IFF_NO_PI);
+        int fl = fcntl(tapfd, F_GETFL);
+        fcntl(tapfd, F_SETFL, fl | O_NONBLOCK);
+        gui_debug_printf("Tap: %d\n", tapfd);
+    }
+}
 }
 
 void usb_cx2_bus_reset_on()
@@ -437,6 +521,8 @@ void usb_cx2_write_word(uint32_t addr, uint32_t value)
     case 0x134: case 0x138:
     case 0x13c:
         usb_cx2.gimr[(offset - 0x134) >> 2] = value;
+        if((usb_cx2.gimr[1] & 0xC) == 0)
+            linuxready = true;
         usb_cx2_int_check();
         return;
     case 0x144: case 0x148:
