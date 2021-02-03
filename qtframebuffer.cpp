@@ -37,7 +37,7 @@ QImage renderFramebuffer()
 
     QImage image(reinterpret_cast<const uchar*>(framebuffer.data()), 320, 240, 320 * 2, format);
 
-    return image;
+    return image.mirrored(false, true);
 }
 
 void paintFramebuffer(QPainter *p)

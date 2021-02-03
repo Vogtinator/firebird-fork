@@ -85,6 +85,19 @@ void lcd_cx_w_draw_frame(uint16_t *buffer)
                 *out = *in++;
         }
     }
+    if(mode == 5)
+    {
+        uint32_t *in32 = (uint32_t*) in;
+        for (int col = 0; col < 320; ++col)
+        {
+            uint16_t *out = buffer + col;
+            for(int row = 0; row < 240; ++row, out += 320)
+            {
+                uint32_t word = *in32++;
+                *out = (word >> 8 & 0xF800) | (word >> 5 & 0x7E0) | (word >> 3 & 0x1F);
+            }
+        }
+    }
     else if(mode == 4)
     {
         for (int col = 0; col < 320; ++col)
@@ -206,9 +219,16 @@ void lcd_cx_draw_frame(uint16_t *buffer) {
     else
         bpp = 16;
 
-    // HW-W features a new 240x320 LCD instead of the usual 320x240px one
     if((features & FEATURE_HWW) == FEATURE_HWW)
+    {
+        // HW-W features a new 240x320 LCD instead of the usual 320x240px one
         lcd_cx_w_draw_frame(buffer);
+    }
+    else if(emulate_cx2 && lcd.framebuffer != 0xA8000000)
+    {
+        // The CX II as well, but the magic VRAM makes it appear like a 320x240px one
+        lcd_cx_w_draw_frame(buffer);
+    }
     else
     {
         uint32_t *in = (uint32_t *)phys_mem_ptr(lcd.framebuffer, (320 * 240) / 8 * bpp);
