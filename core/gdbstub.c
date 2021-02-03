@@ -638,6 +638,7 @@ parse_new_pc:
             case 'q': /* qString Get value of String */
                 if (!strcmp("Offsets", ptr))
                 {
+                    ndls_debug_alloc_block = 0;
                     /* Offsets of sections */
                     sprintf(remcomOutBuffer, "Text=%x;Data=%x;Bss=%x",
                             ndls_debug_alloc_block, ndls_debug_alloc_block,	ndls_debug_alloc_block);
