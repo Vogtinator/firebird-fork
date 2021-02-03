@@ -21,6 +21,8 @@
 // Global CPU state
 struct arm_state arm;
 
+extern void usb_cx2_work();
+
 void cpu_arm_loop()
 {
     while (!exiting && cycle_count_delta < 0 && current_instr_size == 4)
@@ -29,6 +31,8 @@ void cpu_arm_loop()
         Instruction *p = static_cast<Instruction*>(read_instruction(arm.reg[15]));
         if(!p)
             error("Jumped out of memory\n");
+
+        usb_cx2_work();
 
         #ifdef BENCHMARK
             static clock_t start = 0;
