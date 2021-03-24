@@ -577,8 +577,6 @@ void timer_cx_write(uint32_t addr, uint32_t value) {
         case 0x0004: case 0x0024: return;
         case 0x0008: case 0x0028:
             t->control = value;
-            if(which == 0 && (value & 0x80))
-                error("Fast timer not implemented");
             timer_cx_int_check(which);
         return;
         case 0x000C: case 0x002C: t->interrupt = 0; timer_cx_int_check(which); return;
@@ -622,6 +620,7 @@ static void timer_cx_event(int index) {
     //       only fired on significant events
     event_repeat(index, 1);
     // fast timer not implemented here...
+    timer_cx_advance(0);
     timer_cx_advance(1);
     timer_cx_advance(2);
 }
