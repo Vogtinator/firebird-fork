@@ -391,6 +391,10 @@ uint32_t usb_cx2_read_word(uint32_t addr)
         return usb_cx2.dmactrl;
     case 0x1D0: // CX FIFO PIO register
     {
+        // Clear EP0 OUT/IN/SETUP packet IRQ
+        usb_cx2.gisr[0] &= ~0b111;
+        usb_cx2_int_check();
+
         uint32_t ret = usb_cx2.setup_packet[0];
         usb_cx2.setup_packet[0] = usb_cx2.setup_packet[1];
         return ret;
@@ -469,6 +473,8 @@ void usb_cx2_write_word(uint32_t addr, uint32_t value)
         usb_cx2_int_check();
         return;
     case 0x100:
+        if(value & 0x10)
+            usb_cx2.devaddr = 0;
         usb_cx2.devctrl = value;
         usb_cx2_int_check();
         return;
@@ -500,14 +506,29 @@ void usb_cx2_write_word(uint32_t addr, uint32_t value)
 
         if (value & 0b0001) // Setup transfer finished
         {
-            // Clear EP0 OUT/IN/SETUP packet IRQ
-            usb_cx2.gisr[0] &= ~0b111;
-            usb_cx2_int_check();
-
             if (usb_cx2.devaddr == 1)
             {
-                struct usb_setup packet = { 0, 9, 1, 0, 0 };
-                usb_cx2_receive_setup_packet(&packet);
+                /*static int sent = 0;
+                if(!sent && arm.reg[15] > 0x80000000)
+                {
+                    sent = 1;
+                    struct usb_setup packet = { 0, 9, 1, 0, 0 };
+                    //struct usb_setup packet = { 0x80, 0x06, 0x0302, 0x0409, 0xFF };
+                    //struct usb_setup packet = { 0x80, 0x06, 0x0301, 0x0409, 0xFF };
+                    //struct usb_setup packet = { 0, 9, 2, 0, 0 };
+                    //struct usb_setup packet = { 0x80, 0x06, 0x0301, 0x0409, 0xFF };
+                    usb_cx2_receive_setup_packet(&packet);
+                }
+                else */if(arm.reg[15] > 0x80000000)
+                {
+                    struct usb_setup packet = { 0, 9, 1, 0, 0 };
+                    usb_cx2_receive_setup_packet(&packet);
+                }
+                else
+                {
+                    struct usb_setup packet = { 0, 9, 1, 0, 0 };
+                    usb_cx2_receive_setup_packet(&packet);
+                }
             }
         }
 
@@ -516,7 +537,7 @@ void usb_cx2_write_word(uint32_t addr, uint32_t value)
     case 0x124: // IDLE counter
         return;
     case 0x130: // GIMR_ALL
-        usb_cx2.gimr_all = value & 0b111;
+        usb_cx2.gimr_all = value & 0b1111;
         return;
     case 0x134: case 0x138:
     case 0x13c:
