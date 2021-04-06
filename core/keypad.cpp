@@ -419,7 +419,7 @@ void keypad_set_key(int row, int col, bool state)
     else
         keypad.key_map[row] &= ~(1 << col);
 
-    if(state && row == 0 && col == 9)
+    if(!emulate_cx2 && state && row == 0 && col == 9)
         keypad_on_pressed();
 }
 
