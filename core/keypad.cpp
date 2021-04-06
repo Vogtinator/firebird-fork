@@ -91,6 +91,8 @@ static void keypad_scan_event(int index) {
     uint16_t row = ~keypad.key_map[keypad.kpc.current_row];
     row &= ~(0x80000 >> keypad.kpc.current_row); // Emulate weird diagonal glitch
     row |= ~0u << (keypad.kpc.size >> 8 & 0xFF);  // Unused columns read as 1
+    if(keypad.kpc.current_row == 0)
+        row |= (1 << 9);
     if (emulate_cx)
         row = ~row;
 
