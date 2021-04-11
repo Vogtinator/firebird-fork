@@ -292,18 +292,16 @@ void dma_cx2_write_word(uint32_t addr, uint32_t value)
 
 bool cx2_suspend(emu_snapshot *snapshot)
 {
-    snapshot->mem.aladdin_pmu = aladdin_pmu;
-    snapshot->mem.cx2_backlight = cx2_backlight;
-    snapshot->mem.cx2_lcd_spi = cx2_lcd_spi;
-    snapshot->mem.dma = dma;
-    return true;
+    return write_to_snapshot(snapshot, &aladdin_pmu, sizeof(aladdin_pmu))
+            && write_to_snapshot(snapshot, &cx2_backlight, sizeof(cx2_backlight))
+            && write_to_snapshot(snapshot, &cx2_lcd_spi, sizeof(cx2_lcd_spi))
+            && write_to_snapshot(snapshot, &dma, sizeof(dma));
 }
 
 bool cx2_resume(const emu_snapshot *snapshot)
 {
-    aladdin_pmu = snapshot->mem.aladdin_pmu;
-    cx2_backlight = snapshot->mem.cx2_backlight;
-    cx2_lcd_spi = snapshot->mem.cx2_lcd_spi;
-    dma = snapshot->mem.dma;
-    return true;
+    return read_from_snapshot(snapshot, &aladdin_pmu, sizeof(aladdin_pmu))
+            && read_from_snapshot(snapshot, &cx2_backlight, sizeof(cx2_backlight))
+            && read_from_snapshot(snapshot, &cx2_lcd_spi, sizeof(cx2_lcd_spi))
+            && read_from_snapshot(snapshot, &dma, sizeof(dma));
 }

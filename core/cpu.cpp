@@ -434,14 +434,12 @@ void set_reg_bx(uint8_t i, uint32_t value)
 
 bool cpu_resume(const emu_snapshot *s)
 {
-    arm = s->cpu_state;
-    cpu_events = s->cpu_state.cpu_events_state;
-    return true;
+    return read_from_snapshot(s, &arm, sizeof(arm))
+           && read_from_snapshot(s, &cpu_events, sizeof(cpu_events));
 }
 
 bool cpu_suspend(emu_snapshot *s)
 {
-    s->cpu_state = arm;
-    s->cpu_state.cpu_events_state = cpu_events;
-    return true;
+    return write_to_snapshot(s, &arm, sizeof(arm))
+           && write_to_snapshot(s, &cpu_events, sizeof(cpu_events));
 }

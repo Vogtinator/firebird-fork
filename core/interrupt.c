@@ -225,12 +225,10 @@ void int_reset() {
 
 bool interrupt_suspend(emu_snapshot *snapshot)
 {
-    snapshot->mem.intr = intr;
-    return true;
+    return write_to_snapshot(snapshot, &intr, sizeof(intr));
 }
 
 bool interrupt_resume(const emu_snapshot *snapshot)
 {
-    intr = snapshot->mem.intr;
-    return true;
+    return read_from_snapshot(snapshot, &intr, sizeof(intr));
 }

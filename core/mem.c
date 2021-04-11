@@ -515,10 +515,11 @@ bool memory_suspend(emu_snapshot *snapshot)
 {
     assert(mem_and_flags);
 
-    snapshot->mem.sdram_size = mem_areas[1].size;
-    memcpy(snapshot->mem.mem_and_flags, mem_and_flags, MEM_MAXSIZE);
+    uint32_t sdram_size = mem_areas[1].size;
 
-    return misc_suspend(snapshot)
+    return write_to_snapshot(snapshot, &sdram_size, sizeof(sdram_size))
+            && write_to_snapshot(snapshot, mem_and_flags, MEM_MAXSIZE)
+            && misc_suspend(snapshot)
             && keypad_suspend(snapshot)
             && usb_suspend(snapshot)
             && lcd_suspend(snapshot)
@@ -533,15 +534,14 @@ bool memory_suspend(emu_snapshot *snapshot)
 
 bool memory_resume(const emu_snapshot *snapshot)
 {
-    if(!memory_initialize(snapshot->mem.sdram_size))
-        return false;
+    uint32_t sdram_size = mem_areas[1].size;
 
-    memory_reset();
-
-    memcpy(mem_and_flags, snapshot->mem.mem_and_flags, MEM_MAXSIZE);
-    memset(mem_and_flags + MEM_MAXSIZE, 0, MEM_MAXSIZE); // Set all flags to 0
-
-    return misc_resume(snapshot)
+    return read_from_snapshot(snapshot, &sdram_size, sizeof(sdram_size))
+            && memory_initialize(sdram_size)
+            && (memory_reset(), true) // TODO: Remove?
+            && read_from_snapshot(snapshot, mem_and_flags, MEM_MAXSIZE)
+            && memset(mem_and_flags + MEM_MAXSIZE, 0, MEM_MAXSIZE) // Set all flags to 0
+            && misc_resume(snapshot)
             && keypad_resume(snapshot)
             && usb_resume(snapshot)
             && lcd_resume(snapshot)
