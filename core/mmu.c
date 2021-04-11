@@ -241,6 +241,13 @@ void *addr_cache_miss(uint32_t virt, bool writing, fault_proc *fault) {
     ac_entry entry;
     uintptr_t phys = mmu_translate(virt, writing, fault, NULL);
     uint8_t *ptr = phys_mem_ptr(phys, 1);
+    if(!writing && !(ptr && (RAM_FLAGS((size_t)ptr & ~3) & RF_READ_ONLY)))
+    {
+        uint8_t status = 0;
+        mmu_translate(virt, true, NULL, &status);
+        if(status == 0)
+            writing = true;
+    }
     if (ptr && !(writing && (RAM_FLAGS((size_t)ptr & ~3) & RF_READ_ONLY))) {
         AC_SET_ENTRY_PTR(entry, virt, ptr)
                 //printf("addr_cache_miss VA=%08x ptr=%p entry=%p\n", virt, ptr, entry);
