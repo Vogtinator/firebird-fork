@@ -20,9 +20,10 @@ translation_sp: .global translation_sp
 #define RF_CODE_TRANSLATED   32
 #define RFS_TRANSLATION_INDEX 9
 
-#define AC_INVALID 0b10
-#define AC_NOT_PTR 0b01
-#define AC_FLAGS (AC_INVALID|AC_NOT_PTR)
+#define AC_READ_ONLY 0b100
+#define AC_INVALID 0b010
+#define AC_NOT_PTR 0b001
+#define AC_FLAGS (AC_READ_ONLY|AC_INVALID|AC_NOT_PTR)
 
 #if defined(__clang__) && !defined(ANDROID)
 /* On iOS, .text relocations are permitted and due to
@@ -194,8 +195,7 @@ write_word_asm: .global write_word_asm
 // r0 is address, r1 is value
     loadsym r2, addr_cache
     ldr     r2, [r2]
-    mov     r3, r0, lsr #9
-    orr     r3, r3, #1
+    mov     r3, r0, lsr #10
     ldr     r3, [r2, r3, lsl #2] // r3 contains ac_entry
     tst     r3, #AC_FLAGS
     streq   r1, [r3, r0]
@@ -219,8 +219,7 @@ write_half_asm: .global write_half_asm
     loadsym r2, addr_cache, 2
     bic     r0, r0, #1
     ldr     r2, [r2]
-    mov     r3, r0, lsr #9
-    orr     r3, r3, #1
+    mov     r3, r0, lsr #10
     ldr     r3, [r2, r3, lsl #2] // r3 contains ac_entry
     tst     r3, #AC_FLAGS
     streqh  r1, [r3, r0]
@@ -243,8 +242,7 @@ write_byte_asm: .global write_byte_asm
 // r0 is address, r1 is value
     loadsym r2, addr_cache, 3
     ldr     r2, [r2]
-    mov     r3, r0, lsr #9
-    orr     r3, r3, #1
+    mov     r3, r0, lsr #10
     ldr     r3, [r2, r3, lsl #2] // r3 contains ac_entry
     tst     r3, #AC_FLAGS
     streqb  r1, [r3, r0]
@@ -268,7 +266,8 @@ read_word_asm: .global read_word_asm
     loadsym r2, addr_cache, 4
     ldr     r2, [r2]
     mov     r3, r0, lsr #10
-    ldr     r3, [r2, r3, lsl #3] // r3 contains ac_entry
+    ldr     r3, [r2, r3, lsl #2] // r3 contains ac_entry
+    bic     r3, #AC_READ_ONLY
     tst     r3, #AC_FLAGS
     ldreq   r0, [r3, r0]
     bxeq    lr
@@ -292,7 +291,8 @@ read_half_asm: .global read_half_asm
     bic     r0, r0, #1
     ldr     r2, [r2]
     mov     r3, r0, lsr #10
-    ldr     r3, [r2, r3, lsl #3] // r3 contains ac_entry
+    ldr     r3, [r2, r3, lsl #2] // r3 contains ac_entry
+    bic     r3, #AC_READ_ONLY
     tst     r3, #AC_FLAGS
     ldreqh  r0, [r3, r0]
     bxeq    lr
@@ -315,8 +315,9 @@ read_byte_asm: .global read_byte_asm
     loadsym r2, addr_cache, 6
     ldr     r2, [r2]
     mov     r3, r0, lsr #10
-    ldr     r3, [r2, r3, lsl #3] // r3 contains ac_entry
+    ldr     r3, [r2, r3, lsl #2] // r3 contains ac_entry
     tst     r3, #AC_FLAGS
+    bic     r3, #AC_READ_ONLY
     ldreqb  r0, [r3, r0]
     bxeq    lr
     str     r11, [r10, #18*4] // save to arm.cpsr_flags
