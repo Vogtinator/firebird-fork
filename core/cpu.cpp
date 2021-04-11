@@ -152,7 +152,8 @@ void *try_ptr(uint32_t addr)
 {
     //There are two different addr_cache formats...
 #ifdef AC_FLAGS
-    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10) << 1));
+    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10)));
+    entry &= ~AC_READ_ONLY;
 
     if(unlikely(entry & AC_FLAGS))
     {
@@ -177,7 +178,8 @@ void * FASTCALL read_instruction(uint32_t addr)
 {
     //There are two different addr_cache formats...
 #ifdef AC_FLAGS
-    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10) << 1));
+    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10)));
+    entry &= ~AC_READ_ONLY;
 
     if(unlikely(entry & AC_FLAGS))
     {

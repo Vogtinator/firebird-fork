@@ -11,7 +11,8 @@ void flush_translations() {}
 
 uint32_t FASTCALL read_word(uint32_t addr)
 {
-    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10) << 1));
+    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10)));
+    entry &= ~AC_READ_ONLY;
 
     //If the sum doesn't contain the address directly
     if(unlikely(entry & AC_FLAGS))
@@ -36,7 +37,8 @@ uint32_t FASTCALL read_word(uint32_t addr)
 
 uint32_t FASTCALL read_byte(uint32_t addr)
 {
-    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10) << 1));
+    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10)));
+    entry &= ~AC_READ_ONLY;
 
     //If the sum doesn't contain the address directly
     if(unlikely(entry & AC_FLAGS))
@@ -62,7 +64,8 @@ uint32_t FASTCALL read_byte(uint32_t addr)
 uint32_t FASTCALL read_half(uint32_t addr)
 {
     addr &= ~1;
-    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10) << 1));
+    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10)));
+    entry &= ~AC_READ_ONLY;
 
     //If the sum doesn't contain the address directly
     if(unlikely(entry & AC_FLAGS))
@@ -87,12 +90,12 @@ uint32_t FASTCALL read_half(uint32_t addr)
 
 void FASTCALL write_byte(uint32_t addr, uint32_t value)
 {
-    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10) << 1) + 1);
+    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10)));
 
     //If the sum doesn't contain the address directly
     if(unlikely(entry & AC_FLAGS))
     {
-        if(entry & AC_INVALID) //Invalid entry
+        if(entry & (AC_INVALID | AC_READ_ONLY)) //Invalid entry
         {
             addr_cache_miss(addr, true, data_abort);
             return write_byte(addr, value);
@@ -115,12 +118,12 @@ void FASTCALL write_byte(uint32_t addr, uint32_t value)
 void FASTCALL write_half(uint32_t addr, uint32_t value)
 {
     addr &= ~1;
-    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10) << 1) + 1);
+    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10)));
 
     //If the sum doesn't contain the address directly
     if(unlikely(entry & AC_FLAGS))
     {
-        if(entry & AC_INVALID) //Invalid entry
+        if(entry & (AC_INVALID | AC_READ_ONLY)) //Invalid entry
         {
             addr_cache_miss(addr, true, data_abort);
             return write_half(addr, value);
@@ -142,12 +145,12 @@ void FASTCALL write_half(uint32_t addr, uint32_t value)
 
 void FASTCALL write_word(uint32_t addr, uint32_t value)
 {
-    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10) << 1) + 1);
+    uintptr_t entry = *(uintptr_t*)(addr_cache + ((addr >> 10)));
 
     //If the sum doesn't contain the address directly
     if(unlikely(entry & AC_FLAGS))
     {
-        if(entry & AC_INVALID) //Invalid entry
+        if(entry & (AC_INVALID | AC_READ_ONLY)) //Invalid entry
         {
             addr_cache_miss(addr, true, data_abort);
             return write_word(addr, value);

@@ -517,6 +517,7 @@ bool memory_suspend(emu_snapshot *snapshot)
 
     uint32_t sdram_size = mem_areas[1].size;
 
+    // TODO: CAS+ and ti84_io?
     return write_to_snapshot(snapshot, &sdram_size, sizeof(sdram_size))
             && write_to_snapshot(snapshot, mem_and_flags, MEM_MAXSIZE)
             && misc_suspend(snapshot)
@@ -538,7 +539,7 @@ bool memory_resume(const emu_snapshot *snapshot)
 
     return read_from_snapshot(snapshot, &sdram_size, sizeof(sdram_size))
             && memory_initialize(sdram_size)
-            && (memory_reset(), true) // TODO: Remove?
+            && (memory_reset(), true) // To have peripherals register with sched
             && read_from_snapshot(snapshot, mem_and_flags, MEM_MAXSIZE)
             && memset(mem_and_flags + MEM_MAXSIZE, 0, MEM_MAXSIZE) // Set all flags to 0
             && misc_resume(snapshot)

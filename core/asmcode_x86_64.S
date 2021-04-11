@@ -206,9 +206,9 @@ ror_carry_mult_32:
 read_word_asm: .global read_word_asm
     mov     %rdi, %rax
     shr     $10, %rax
-    shl     $1, %rax
     mov     addr_cache(%rip), %r8
     mov     (%r8, %rax, 8), %rax
+    and     $~4, %rax
     test    $3, %rax
     jnz     rwa_miss
     movl    (%rax, %rdi), %eax
@@ -224,11 +224,9 @@ rwa_miss:
 write_word_asm: .global write_word_asm
     mov     %rdi, %rax
     shr     $10, %rax
-    shl     $1, %rax
-    add     $1, %rax
     mov     addr_cache(%rip), %r8
     mov     (%r8, %rax, 8), %rax
-    test    $3, %rax
+    test    $7, %rax
     jnz     wwa_miss
     movl    %esi, (%rax, %rdi)
     testq   $DO_WRITE_ACTION, RAM_FLAGS(%rax, %rdi)
@@ -246,9 +244,9 @@ read_half_asm: .global read_half_asm
     and     $-2, %rdi
     mov     %rdi, %rax
     shr     $10, %rax
-    shl     $1, %rax
     mov     addr_cache(%rip), %r8
     mov     (%r8, %rax, 8), %rax
+    and     $~4, %rax
     test    $3, %rax
     jnz     rha_miss
     movzwl  (%rax, %rdi), %eax
@@ -265,11 +263,9 @@ write_half_asm: .global write_half_asm
     and     $-2, %rdi
     mov     %rdi, %rax
     shr     $10, %rax
-    shl     $1, %rax
-    add     $1, %rax
     mov     addr_cache(%rip), %r8
     mov     (%r8, %rax, 8), %rax
-    test    $3, %rax
+    test    $7, %rax
     jnz     wha_miss
     movw    %si, (%rax, %rdi)
     testq   $DO_WRITE_ACTION, RAM_FLAGS(%rax, %rdi)
@@ -286,9 +282,9 @@ wha_miss:
 read_byte_asm: .global read_byte_asm
     mov     %rdi, %rax
     shr     $10, %rax
-    shl     $1, %rax
     mov     addr_cache(%rip), %r8
     mov     (%r8, %rax, 8), %rax
+    and     $~4, %rax
     test    $3, %rax
     jnz     rba_miss
     movzb   (%rax, %rdi), %rax
@@ -304,11 +300,9 @@ rba_miss:
 write_byte_asm: .global write_byte_asm
     mov     %rdi, %rax
     shr     $10, %rax
-    shl     $1, %rax
-    add     $1, %rax
     mov     addr_cache(%rip), %r8
     mov     (%r8, %rax, 8), %rax
-    test    $3, %rax
+    test    $7, %rax
     jnz     wba_miss
     xchg    %rsi, %rdx // Can't use %rsi directly
     movb    %dl, (%rax, %rdi)

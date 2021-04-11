@@ -197,7 +197,7 @@ static uint32_t ac_valid_index;
 static uint32_t ac_valid_list[AC_VALID_MAX];
 
 static void addr_cache_invalidate(unsigned int i) {
-    AC_SET_ENTRY_INVALID(addr_cache[i], i >> 1 << 10)
+    AC_SET_ENTRY_INVALID(addr_cache[i], i << 10)
 }
 
 #if OS_HAS_PAGEFAULT_HANDLER
@@ -248,8 +248,10 @@ void *addr_cache_miss(uint32_t virt, bool writing, fault_proc *fault) {
         AC_SET_ENTRY_PHYS(entry, virt, phys)
                 //printf("addr_cache_miss VA=%08x PA=%08x entry=%p\n", virt, phys, entry);
     }
+    if(!writing)
+            entry = (ac_entry)((uintptr_t)entry | AC_READ_ONLY);
     uint32_t oldoffset = ac_valid_list[ac_valid_index];
-    uint32_t offset = (virt >> 10) * 2 + writing;
+    uint32_t offset = (virt >> 10);
     addr_cache_invalidate(oldoffset);
     addr_cache[offset] = entry;
     ac_valid_list[ac_valid_index] = offset;

@@ -39,7 +39,7 @@ void mmu_user_access(uint32_t addr, bool writing);
  * c) Invalid entry: Bit 0 set, Bit 1 set
  */
 
-#define AC_NUM_ENTRIES (((1ull << 32) >> 10) * 2)
+#define AC_NUM_ENTRIES (((1ull << 32) >> 10))
 typedef uint8_t *ac_entry;
 extern ac_entry *addr_cache __asm__("addr_cache");
 
@@ -59,7 +59,8 @@ extern ac_entry *addr_cache __asm__("addr_cache");
             entry = (ptr) - (va);
     #define AC_NOT_PTR 0x1
     #define AC_INVALID 0x2
-    #define AC_FLAGS 0x3
+    #define AC_READ_ONLY 0x4
+    #define AC_FLAGS 0x7
     #define AC_SET_ENTRY_PHYS(entry, va, pa) \
             entry = (ac_entry)(((pa) - (va)) | AC_NOT_PTR);
     #define AC_SET_ENTRY_INVALID(entry, va) \
