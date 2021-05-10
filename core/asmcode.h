@@ -12,10 +12,10 @@ extern "C" {
 
 #if defined(__arm__) || defined(__aarch64__)
 // Supply the pointer to the instruction directly to avoid read_instruction
-void translation_enter(void *ptr) __asm__("translation_enter");
+void FASTCALL translation_enter(void *ptr) __asm__("translation_enter");
 #define TRANSLATION_ENTER_HAS_PTR 1
 #else
-void translation_enter() __asm__("translation_enter");
+void FASTCALL translation_enter() __asm__("translation_enter");
 #define TRANSLATION_ENTER_HAS_PTR 0
 #endif
 

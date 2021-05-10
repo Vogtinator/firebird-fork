@@ -72,6 +72,11 @@ extern struct arm_state arm __asm__("arm");
         #undef FASTCALL
     #endif
     #define FASTCALL __attribute__((fastcall))
+#elif defined(__x86_64__) && (defined(_WIN32) || defined(WIN32))
+    #ifdef FASTCALL
+        #undef FASTCALL
+    #endif
+    #define FASTCALL __attribute__((sysv_abi))
 #else
     #define FASTCALL
 #endif
