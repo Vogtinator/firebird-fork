@@ -23,4 +23,6 @@ QtObject {
     function toastMessage(msg) { toast.showMessage(msg); }
     function touchpadStateChanged(x, y, down, contact) {}
     function keypadStateChanged(keymap_id, down) {}
+
+    signal debugStr;
 }

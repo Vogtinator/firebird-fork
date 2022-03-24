@@ -155,6 +155,8 @@ signals:
     void emuSuspended(bool success);
     void usblinkProgressChanged(int percent);
 
+    void debugStr(QString str);
+
     /* Never called. Used as NOTIFY value for writable properties
      * that aren't used outside of QML. */
     void neverEmitted();
