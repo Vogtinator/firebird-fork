@@ -2,6 +2,7 @@
 #include <QAndroidJniObject>
 #include <QAndroidJniEnvironment>
 #include <QAndroidActivityResultReceiver>
+#include <QDebug>
 
 #include "os.h"
 
@@ -9,6 +10,7 @@
 // Based on code by Florin9doi: https://github.com/nspire-emus/firebird/pull/94/files
 FILE *fopen_utf8(const char *path, const char *mode)
 {
+    qDebug() << "Trying to open" << path << "with mode" << mode;
     const char pattern[] = "content:";
     if(strncmp(pattern, path, sizeof(pattern)-1) != 0)
         return fopen(path, mode);
@@ -46,6 +48,11 @@ FILE *fopen_utf8(const char *path, const char *mode)
     {
         env->ExceptionDescribe();
         env->ExceptionClear();
+
+        if(android_mode.contains(QLatin1Char('w'))) {
+            qDebug() << "Failed to get RW perms for" << path << ", retrying RO";
+            return fopen_utf8(path, "rb");
+        }
     }
 
     QAndroidJniObject parcelFileDescriptor = contentResolver
