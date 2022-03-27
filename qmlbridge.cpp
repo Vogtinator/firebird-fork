@@ -328,9 +328,6 @@ QString QMLBridge::toLocalFile(QUrl url)
 
 bool QMLBridge::fileExists(QString path)
 {
-    if(path.startsWith(QStringLiteral("content://")))
-        return true; // Android content URL, can't do much
-
     return QFile::exists(path);
 }
 
