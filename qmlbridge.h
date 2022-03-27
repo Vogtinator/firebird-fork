@@ -118,9 +118,10 @@ public:
     Q_INVOKABLE void toastMessage(QString msg);
 
     #ifndef MOBILE_UI
-        Q_INVOKABLE void createFlash(unsigned int kitIndex);
         Q_INVOKABLE void switchUIMode(bool mobile_ui);
     #endif
+
+    Q_INVOKABLE bool createFlash(QString path, int productID, int featureValues, QString manuf, QString boot2, QString os, QString diags);
 
     Q_INVOKABLE bool saveDialogSupported();
 

@@ -263,6 +263,7 @@ SOURCES += qml/Keypad.qml \
     qml/NAlphaButton.qml \
     qml/NDualButton.qml \
     qml/FBConfigDialog.qml \
+    qml/FlashDialog.qml \
     qml/Touchpad.qml \
     qml/Firebird/Emu/Emu.qml \
     qml/Firebird/Emu/EmuScreen.qml \
@@ -293,6 +294,7 @@ RESOURCES += \
     resources.qrc
 
 DISTFILES += \
+    qml/FlashDialog.qml \
     resources/org.firebird.firebird-emu.desktop \
     core/firebird-send \
     android/AndroidManifest.xml \

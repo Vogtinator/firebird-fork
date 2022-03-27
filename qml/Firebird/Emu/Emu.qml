@@ -23,6 +23,8 @@ QtObject {
     function toastMessage(msg) { toast.showMessage(msg); }
     function touchpadStateChanged(x, y, down, contact) {}
     function keypadStateChanged(keymap_id, down) {}
+    function toLocalFile(url) { return url; }
+    function basename(path) { return path; }
 
     signal debugStr;
 }
