@@ -78,32 +78,22 @@ ColumnLayout {
                 elide: Text.ElideMiddle
             }
 
-            ColumnLayout {
+            FileSelect {
+                id: flashEdit
                 Layout.fillWidth: true
-
-                FileSelect {
-                    id: flashEdit
-                    Layout.fillWidth: true
-                    filePath: kitList.currentItem.myData.flash
-                    onFilePathChanged: {
-                        if(filePath !== kitList.currentItem.myData.flash)
-                            kitModel.setDataRow(kitList.currentIndex, filePath, KitModel.FlashRole);
-                        filePath = Qt.binding(function() { return kitList.currentItem.myData.flash; });
-                    }
-                }
-
-                FlashDialog {
-                    id: flashDialog
-                    onFlashCreated: {
+                filePath: kitList.currentItem.myData.flash
+                onFilePathChanged: {
+                    if(filePath !== kitList.currentItem.myData.flash)
                         kitModel.setDataRow(kitList.currentIndex, filePath, KitModel.FlashRole);
-                    }
+                    filePath = Qt.binding(function() { return kitList.currentItem.myData.flash; });
                 }
+                onCreate: flashDialog.visible = true
+            }
 
-                Button {
-                    id: createButton
-                    Layout.alignment: Qt.AlignRight
-                    text: qsTr("New")
-                    onClicked: flashDialog.visible = true
+            FlashDialog {
+                id: flashDialog
+                onFlashCreated: {
+                    kitModel.setDataRow(kitList.currentIndex, filePath, KitModel.FlashRole);
                 }
             }
 

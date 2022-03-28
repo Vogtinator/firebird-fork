@@ -22,6 +22,7 @@
         <file>resources/icons/drive-removable-media-usb.png</file>
         <file>resources/icons/smartphone.png</file>
         <file>resources/icons/video-display.png</file>
+        <file>resources/icons/edit-entry.svg</file>
     </qresource>
     <qresource prefix="/qml">
         <file>qml/Keypad.qml</file>

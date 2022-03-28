@@ -8,6 +8,7 @@ RowLayout {
     id: root
     property string filePath: ""
     property bool selectExisting: true
+    signal create()
 
     Loader {
         id: dialogLoader
@@ -38,13 +39,21 @@ RowLayout {
         color: (!selectExisting || filePath === "" || Emu.fileExists(filePath)) ? paletteActive.text : "red"
     }
 
-    Button {
-        id: selectButton
-        text: qsTr("Select")
+    ToolButton {
+        iconSource: "qrc:/icons/resources/icons/edit-entry.svg"
+        onClicked: menu.popup()
+        Menu {
+            id: menu
+            iconSource: "qrc:/icons/resources/icons/edit-entry.svg"
 
-        onClicked: {
-            dialogLoader.active = true
-            dialogLoader.item.visible = true
-        }
+            MenuItem {
+                text: "Select existing"
+                onTriggered: root.create()
+            }
+
+            MenuItem {
+                text: "Create new"
+            }
+       }
     }
 }
