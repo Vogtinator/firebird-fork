@@ -87,6 +87,7 @@ ColumnLayout {
                         kitModel.setDataRow(kitList.currentIndex, filePath, KitModel.FlashRole);
                     filePath = Qt.binding(function() { return kitList.currentItem.myData.flash; });
                 }
+                showCreateButton: true
                 onCreate: flashDialog.visible = true
             }
 

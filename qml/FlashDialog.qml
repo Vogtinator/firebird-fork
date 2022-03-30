@@ -23,6 +23,7 @@ Dialog {
     GridLayout {
         id: layout
         width: parent.width
+        columns: 2
 
         FBLabel {
             Layout.minimumHeight: implicitHeight
