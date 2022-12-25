@@ -355,8 +355,18 @@ void MainWindow::debugInputRequested(bool b)
 
 void MainWindow::debugStr(QString str)
 {
-    ui->debugConsole->moveCursor(QTextCursor::End);
+    static bool newlineWasLast = false;
+    if(newlineWasLast)
+        ui->debugConsole->insertPlainText(QStringLiteral("\n"));
+
+    if(str.endsWith(QLatin1Char('\n'))) {
+        str.chop(1);
+        newlineWasLast = true;
+    } else
+        newlineWasLast = false;
+
     ui->debugConsole->insertPlainText(str);
+    ui->debugConsole->moveCursor(QTextCursor::End);
 }
 
 void MainWindow::debugCommand()
