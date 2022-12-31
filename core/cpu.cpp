@@ -90,7 +90,7 @@ void cpu_arm_loop()
         if((~cpu_events & EVENT_DEBUG_STEP) && *flags_ptr & RF_CODE_TRANSLATED)
         {
             #if TRANSLATION_ENTER_HAS_PTR
-                translation_enter(p);
+                translation_enter(&p->raw);
             #else
                 translation_enter();
             #endif

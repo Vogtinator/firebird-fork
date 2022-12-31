@@ -123,6 +123,7 @@ win32 {
 ASMCODE_IMPL = core/asmcode.c
 
 TRANSLATE = $$files("core/translate_"$$FB_ARCH".c*")
+equals(FB_ARCH, wasm): TRANSLATE = $$files("core/translate_js.c*")
 equals(TRANSLATION_ENABLED, auto) {
     isEmpty(TRANSLATE): TRANSLATION_ENABLED = false
     else: TRANSLATION_ENABLED = true
@@ -289,6 +290,7 @@ SOURCES += core/asmcode_arm.S \
     core/os/os-emscripten.c \
     core/translate_arm.cpp \
     core/translate_aarch64.cpp \
+    core/translate_js.cpp \
     core/translate_x86.c \
     core/translate_x86_64.c \
     headless/main.cpp \

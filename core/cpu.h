@@ -78,6 +78,9 @@ extern struct arm_state arm __asm__("arm");
 #elif defined(__x86_64__) && (defined(_WIN32) || defined(WIN32))
     #define FASTCALL __attribute__((sysv_abi))
     #define SYSVABI __attribute__((sysv_abi))
+#elif defined(__EMSCRIPTEN__)
+    #define FASTCALL __attribute__((used,visibility("default")))
+    #define SYSVABI __attribute__((used,visibility("default")))
 #else
     #define FASTCALL
     #define SYSVABI

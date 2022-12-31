@@ -13,7 +13,7 @@ CSOURCES :=    ../core/armsnippets_loader.c ../core/asmcode.c ../core/casplus.c 
 
 CPPSOURCES := ../core/arm_interpreter.cpp ../core/coproc.cpp ../core/cpu.cpp ../core/debug.cpp ../core/emu.cpp \
 	      ../core/flash.cpp ../core/gif.cpp ../core/thumb_interpreter.cpp ../core/usblink_queue.cpp main.cpp \
-	      ../core/fieldparser.cpp ../core/cx2.cpp ../core/usb_cx2.cpp ../core/usblink_cx2.cpp
+	      ../core/fieldparser.cpp ../core/cx2.cpp ../core/usb_cx2.cpp ../core/usblink_cx2.cpp ../core/translate_js.cpp
 
 OBJS = $(patsubst %.c, %.bc, $(CSOURCES))
 OBJS += $(patsubst %.cpp, %.bc, $(CPPSOURCES))
