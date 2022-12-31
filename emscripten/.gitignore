@@ -3,3 +3,4 @@ firebird.js
 *.mem
 *.img
 *.data
+*.wasm
