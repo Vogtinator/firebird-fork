@@ -203,7 +203,87 @@ void translate(uint32_t pc_start, uint32_t *insn_ptr_start)
                 goto instruction_translated;
             }
 
-            goto unimpl;
+            if(i.data_proc.op == OP_ADC || i.data_proc.op == OP_SBC)
+                emit_local_cpsr();
+
+            emit("{\n");
+            if(i.data_proc.op != OP_MOV && i.data_proc.op != OP_MVN)
+            {
+                emit("let rn = ");
+                if(i.data_proc.rn != PC) {
+                    emit_reg(i.data_proc.rn); emit(";\n");
+                } else
+                    emit("0x%x;\n", pc + 8);
+            }
+
+            emit("let rm = ");
+            if(i.data_proc.imm)
+            {
+                uint32_t immed = i.data_proc.immed_8;
+                uint8_t count = i.data_proc.rotate_imm << 1;
+                if(count)
+                    immed = (immed >> count) | (immed << (32 - count));
+
+                emit("0x%x;\n", immed);
+            }
+            else if(!i.data_proc.reg_shift && i.data_proc.shift == SH_LSL)
+            {
+                emit("(");
+                emit_reg(i.data_proc.rm);
+                if(i.data_proc.shift_imm)
+                    emit(" << %d)>>>0;\n", unsigned(i.data_proc.shift_imm));
+                else
+                    emit(");\n");
+            }
+            else
+            {
+                goto unimpl;
+            }
+
+            if(i.data_proc.s)
+                goto unimpl;
+
+            // Something below here is broken as well.
+
+            emit_reg(i.data_proc.rd); emit(" = ");
+
+            switch(i.data_proc.op)
+            {
+            case OP_AND:
+                emit("rn & rm;");
+                break;
+            case OP_EOR:
+                emit("rn ^ rm;");
+                break;
+            case OP_SUB:
+                emit("(rn - rm)|0;");
+                break;
+            case OP_ADD:
+                emit("(rn + rm)|0;");
+                break;
+            case OP_ADC:
+                emit("(rn + rm + cpsr_c)|0;");
+                break;
+            case OP_SBC:
+                emit("(rn + ~rm + cpsr_c)|0;");
+                break;
+            case OP_ORR:
+                emit("rn | rm;");
+                break;
+            case OP_MOV:
+                emit("rm;");
+                break;
+            case OP_BIC:
+                emit("rn & ~rm;");
+                break;
+            case OP_MVN:
+                emit("~rm;");
+                break;
+            default:
+                goto unimpl;
+            }
+
+            emit("}\n");
 		}
 		else if((i.raw & 0xFF000F0) == 0x7F000F0)
 			goto unimpl; // undefined
